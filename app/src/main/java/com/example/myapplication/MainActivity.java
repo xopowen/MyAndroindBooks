@@ -15,125 +15,101 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+
 public class MainActivity extends Activity {
-    public int[][] arrCircle;
-    int x;
-    int y;
-    int red;
-    int green;
+    ListView bookList;
+    ListView townList;
+    ArrayList<String> townArrayList;
+    //ArrayAdapter<String> adapter;
+    LinkedList<HashMap<String,Object>> library;
+    SimpleAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new DrawView(this));
-        arrCircle = new int[4]
-                [4];
-        for (int i = 0; i < arrCircle.length; i++) {
-            for (int j = 0; j < arrCircle[i].length; j++) {
-                arrCircle[i][j] = (int) Math.round((Math.random() ) );
-            }
+        setContentView(R.layout.activity_main);
+
+        Button bottom = (Button)findViewById(R.id.bottomButton);
+
+
+        bookList = findViewById(R.id.mainlist);
+        //шак 1
+        LinkedList<Book> myBooks = new LinkedList<>();
+        myBooks.add(new Book("A.Aзимов","Основание",R.drawable.osnovanie));
+        myBooks.add(new Book("A.Aзимов","Шинель",R.drawable.prestuplenie));
+        myBooks.add(new Book("A.Aзимов","Зерцалия",R.drawable.shinel));
+        myBooks.add(new Book("A.Aзимов","Основание",R.drawable.zertsalia));
+        myBooks.add(new Book("A.Aзимов","Основание",0));
+        myBooks.add(new Book("A.Aзимов","Основание",0));
+
+        //шак 2
+        library = new LinkedList<>();
+
+        for(int i=0; i< myBooks.size(); i++){
+            HashMap<String,Object> book = new HashMap<>();
+            book.put("author", myBooks.get(i).author);
+            book.put("name",myBooks.get(i).name);
+            book.put("cover",myBooks.get(i).cover);
+            library.add(book);
         }
-    }
+        //шак 3 подготовка массивов from and to
+        String[] from = {"author","name","cover"};
+        int [] to     = {R.id.author,R.id.name,R.id.cover};
 
-    class DrawView extends View {
+        //шак 4 создание адаптора
+        adapter = new SimpleAdapter(
+                this,library,R.layout.list_item,from,to);
 
-        Paint p;
-        Rect rect;
+        bookList.setAdapter(adapter);
+        //создать список городов
+        //townArrayList = new ArrayList<>();
+        //townArrayList.add("Иркуткс");
 
-        public DrawView(Context context) {
-            super(context);
-            p = new Paint();
-            rect = new Rect();
-        }
-        //нарисовали на экране круги на равном расстояние
-        @Override
-        protected void onDraw(Canvas canvas) {
-            // заливка канвы цветом
-            canvas.drawARGB(80, 102, 204, 255);
-
-            // настройка кисти
-            // красный цвет
-            p.setColor(Color.RED);
-            // толщина линии = 10
-            p.setStrokeWidth(10);
-            red = 0;
-            green = 0;
-            for(int i = 50; i < 100*arrCircle.length+50; i += 100){
-                for(int j = 50; j < 100 * arrCircle[0].length + 50; j += 100) {
-                    if(arrCircle[i / 100][j / 100] != 1) {
-                        arrCircle[i / 100][j / 100] = 0;
-                        p.setColor(Color.RED);
-                        red++;
-                    }else{
-                        p.setColor(Color.GREEN);
-                        green++;
-                    }
-                    // рисуем круг с центром в (100,200), радиус = 50
-                    canvas.drawCircle(i, j, 50, p);
-                }
-            }
-            if ((green==0)||red==0) {
-                Toast toast = Toast.makeText(getApplicationContext(),
-                        "ура вы выйграли", Toast.LENGTH_SHORT);
-                toast.show();
-            for (int i = 0; i < arrCircle.length; i++) {
-                    for (int j = 0; j < arrCircle[i].length; j++) {
-                        arrCircle[i][j] = (int) Math.round((Math.random() ) );
-                    }
-            }
-            }
-
-            invalidate();
+        //создание адаптора
+        //adapter = new ArrayAdapter<>(this,
+                //R.layout.list_item,townArrayList);
 
 
-        }
+       // townList.setAdapter(adapter);
+
+       // townList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+          //  @Override
+          //  public void onItemClick(AdapterView<?> parent, View view, int i,long l){
+            //    Toast.makeText(getApplicationContext(),"You are pressed on:"+i+"/ l=" + townArrayList.get(i),
+            //            Toast.LENGTH_SHORT).show();
+          //  }
+   //     });
+
+        //добавить поле ввотда и кнопку при нажатии которого добавиться в списко
+
+
 
     }
-
-    @Override
-    public boolean onTouchEvent (MotionEvent event){
-        //что делать, если пользователь только коснулся экрана
-        if (event.getAction() == ACTION_DOWN){
-            //получаем координаты точки косания
-            x = (int) event.getX();
-            y = (int) event.getY();
-            if ((x < 100*arrCircle.length)&&(y<100*arrCircle[0].length)){
-               // if((x % 100 < 50/2)||(y % 100 < 50/2)){
-                    for(int i = 0; i < arrCircle.length;i+=1){
-                        for(int j = 0; j < arrCircle[i].length;j++) {
-                            if(arrCircle[i][j] != 1) {
-                                if((x)/100 == i){
-                                    arrCircle[i][j] = 1;
-                                }
-                                if((y)/100 == j){
-                                    arrCircle[i][j] = 1;
-                                }
-                            }else {
-                                if((x)/100 ==i ){
-                                    arrCircle[i][j] = 0;
-                                }
-                                if((y)/100==j){
-                                    arrCircle[i][j] = 0;
-                                }
-                            }
-                          }
-                        }
-
-                }
-        }
-
-        return true;
+    public void onMyButtonClick(View view ){
+        EditText strAuthon = findViewById(R.id.inputAuthon);
+        EditText strName =findViewById(R.id.inputName);
+        if( strAuthon.getText() != null && strName.getText() != null){
+            Book addBook = new Book(strAuthon.getText().toString(),strName.getText().toString(),0);
+            HashMap<String,Object> book = new HashMap<>();
+            book.put("author", addBook.author);
+            book.put("name",addBook.name);
+            book.put("cover",addBook.cover);
+            library.add(book);
+            adapter.notifyDataSetChanged();
+    }
     }
 
 }
-/*                if((x % 100 < 50/2)||(y % 100 < 50/2)){
-                    if(arrCircle[(int)x / 100][(int)y / 100] != 1){
-                        arrCircle[(int)x / 100][(int)y / 100] = 1;
-                    }else{
-                        arrCircle[(int)x / 100][(int)y / 100] = 0;
-                    }
-                }
-            }*/
